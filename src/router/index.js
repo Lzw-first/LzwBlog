@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 const Login = () => import(/* webpackChunkName: "login_Home" */ '../components/Login.vue')
 const Home = () => import(/* webpackChunkName: "login_Home" */ '../components/Home.vue')
 
+const TodoList = () => import(/* webpackChunkName: "TodoList" */ '../components/TodoList.vue')
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -14,7 +16,11 @@ const routes = [
     path: '/login',
     component: Login
   },
-  { path: '/home', component: Home }
+  {
+    path: '/home',
+    component: Home,
+    children: [{ path: '/todolist', component: TodoList }]
+  }
 ]
 
 const router = new VueRouter({

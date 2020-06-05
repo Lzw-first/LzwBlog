@@ -2,12 +2,17 @@
   padding: 0;
   margin: 0;
 }
-
+ol,
+li,
+ul {
+  list-style: none;
+}
 html,
 body,
 #app {
   height: 100%;
   font-size: 13px;
+  min-width: 1366px;
 }
 
 .el-form-item__label {
@@ -16,4 +21,14 @@ body,
 
 .el-container {
   height: 100%;
+}
+.main_content {
+  box-sizing: border-box;
+  width: 1000px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 0 5px #eee;
 }
