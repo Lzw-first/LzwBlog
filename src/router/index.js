@@ -1,11 +1,13 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-const Login = () => import(/* webpackChunkName: "login_Home" */ '../components/Login.vue')
-const Home = () => import(/* webpackChunkName: "login_Home" */ '../components/Home.vue')
+import Vue from 'vue';
+import VueRouter from 'vue-router';
+const Login = () => import(/* webpackChunkName: "login_Home" */ '../components/Login.vue');
+const Home = () => import(/* webpackChunkName: "login_Home" */ '../components/Home.vue');
 
-const TodoList = () => import(/* webpackChunkName: "TodoList" */ '../components/TodoList.vue')
+const TodoList = () => import(/* webpackChunkName: "TodoList" */ '../components/TodoList.vue');
 
-Vue.use(VueRouter)
+const Diary = () => import(/* webpackChunkName: "TodoList" */ '../components/diary/Diary.vue');
+
+Vue.use(VueRouter);
 
 const routes = [
   {
@@ -19,22 +21,25 @@ const routes = [
   {
     path: '/home',
     component: Home,
-    children: [{ path: '/todolist', component: TodoList }]
+    children: [
+      { path: '/todolist', component: TodoList },
+      { path: '/diary', component: Diary }
+    ]
   }
-]
+];
 
 const router = new VueRouter({
   routes
-})
+});
 
 // 拦截器
 router.beforeEach((to, from, next) => {
-  if (to.path === '/login') return next()
+  if (to.path === '/login') return next();
 
   if (!window.sessionStorage.getItem('token')) {
-    return next('/login')
+    return next('/login');
   }
-  next()
-})
+  next();
+});
 
-export default router
+export default router;

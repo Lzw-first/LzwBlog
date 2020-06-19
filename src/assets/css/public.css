@@ -14,7 +14,9 @@ body,
   font-size: 13px;
   min-width: 1366px;
 }
-
+a {
+  text-decoration: none;
+}
 .el-form-item__label {
   color: #fff !important;
 }
