@@ -5,10 +5,9 @@
 <script>
 export default {
   data() {
-    return {};
+    return {}
   }
-};
+}
 </script>
 
-<style lang="less" scoped>
-</style>
+<style lang="less" scoped></style>

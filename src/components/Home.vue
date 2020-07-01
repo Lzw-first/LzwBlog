@@ -4,15 +4,9 @@
       <span>
         每个人都有属于自己的星空
         <i>{{ time | dateFormat }}</i>
-        <i class="el-icon-timer" :style="{ display: isVisible }" @click="showClock"></i>
+        <i class="el-icon-timer" :style="{ display: isVisible, cursor: 'pointer' }" @click="showClock"></i>
       </span>
-      <el-menu
-        :default-active="activeIndex"
-        class="el-menu-demo"
-        mode="horizontal"
-        @select="handleSelect"
-        @open="getWeather"
-      >
+      <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect" @open="getWeather">
         <el-menu-item index="/home">首页</el-menu-item>
         <el-submenu index="/interest">
           <template slot="title">兴趣</template>
@@ -22,10 +16,10 @@
         </el-submenu>
         <el-menu-item index="/diary">日记</el-menu-item>
         <el-menu-item index="/todolist">TodoList</el-menu-item>
-        <!-- 不给直接自己定义类 -->
+        <!-- ele中自己定义的类 要用 popper-class -->
         <el-submenu index="/weather" popper-class="weatherList">
           <template slot="title">
-            <p @click="gotoWeatherIndex" :style="{display: 'inline-block'}">天气</p>
+            <p @click="gotoWeatherIndex" :style="{ display: 'inline-block' }">天气</p>
           </template>
           <el-menu-item index="5-1">
             <div>
@@ -67,6 +61,7 @@
         <button @click="logout">退出</button>
       </div>
     </el-header>
+    <!-- 计时器 -->
     <div class="studyClock" :style="{ display: isClockVisible }">
       <h2>今日已学</h2>
       <div>
@@ -89,12 +84,12 @@
 </template>
 
 <script>
-import jsonp from '../assets/js/jsonp.js';
+import jsonp from '../assets/js/jsonp.js'
 export default {
   data() {
     return {
       inputSerach: '',
-      activeIndex: '/index',
+      activeIndex: '/home',
       time: '',
       weatherData1: [],
       weatherData2: [],
@@ -105,34 +100,32 @@ export default {
         list: []
       },
       timer: '',
-      isClockVisible: 'flex',
-      isVisible: 'none'
-    };
+      isClockVisible: 'none',
+      isVisible: 'inline-block'
+    }
   },
   created() {
-    this.getWeather();
-    this.getTime();
-    this.getActiveIndex();
+    this.getWeather()
+    this.getTime()
+    this.getActiveIndex()
   },
   mounted() {},
   methods: {
     logout() {
-      window.sessionStorage.clear();
-      this.$router.push('/login');
+      window.sessionStorage.clear()
+      this.$router.push('/login')
     },
     getActiveIndex() {
-      var index = window.sessionStorage.getItem('activeIndex');
+      var index = window.sessionStorage.getItem('activeIndex')
       if (index !== null) {
-        this.activeIndex = index;
+        this.activeIndex = index
       } else {
-        this.activeIndex = '/index';
+        this.activeIndex = '/home'
       }
     },
     handleSelect(index) {
-      console.log(index);
-
-      window.sessionStorage.setItem('activeIndex', index);
-      this.$router.push(index);
+      window.sessionStorage.setItem('activeIndex', index)
+      this.$router.push(index)
     },
     // 通过调用接口获取天气信息
     getWeather() {
@@ -145,86 +138,86 @@ export default {
           city: '深圳市'
         },
         success: data => {
-          if (data.status !== 200) return this.$message.error('获取天气信息失败');
+          if (data.status !== 200) return this.$message.error('获取天气信息失败')
           // for (let i = 0; i < 10; i++) {
           //   this.weatherData.push(data.data.forecast_1h[i])
           // }
-          const weatherList = Object.values(data.data.forecast_1h);
-          this.weatherData1 = weatherList.slice(0, 12);
+          const weatherList = Object.values(data.data.forecast_1h)
+          this.weatherData1 = weatherList.slice(0, 12)
           for (let i = 0; i < 12; i++) {
-            this.weatherData1[i].src = this.weatherSrc(this.weatherData1[i]);
+            this.weatherData1[i].src = this.weatherSrc(this.weatherData1[i])
           }
-          this.weatherData2 = weatherList.slice(12, 24);
+          this.weatherData2 = weatherList.slice(12, 24)
           for (let i = 0; i < 12; i++) {
-            this.weatherData2[i].src = this.weatherSrc(this.weatherData2[i]);
+            this.weatherData2[i].src = this.weatherSrc(this.weatherData2[i])
           }
           // console.log(this.weatherData2)
         }
-      });
+      })
     },
     getTime() {
-      this.time = +new Date();
+      this.time = +new Date()
       setInterval(() => {
-        this.time = +new Date();
-      }, 1000);
+        this.time = +new Date()
+      }, 1000)
     },
     weatherSrc(item) {
-      let src = '';
-      const time = item.update_time.substr(8, 2);
+      let src = ''
+      const time = item.update_time.substr(8, 2)
       switch (item.weather) {
         case '阴':
-          src = require('../assets/img/weather/02.png');
-          break;
+          src = require('../assets/img/weather/02.png')
+          break
         case '雷阵雨':
-          src = require('../assets/img/weather/04[7673].png');
-          break;
+          src = require('../assets/img/weather/04[7673].png')
+          break
         case '大雨':
-          src = require('../assets/img/weather/09[6413].png');
-          break;
+          src = require('../assets/img/weather/09[6413].png')
+          break
         case '暴雨':
-          src = require('../assets/img/weather/10.png');
-          break;
+          src = require('../assets/img/weather/10.png')
+          break
         case '中雨':
-          src = require('../assets/img/weather/08[9565].png');
-          break;
+          src = require('../assets/img/weather/08[9565].png')
+          break
         case '小雨':
-          src = require('../assets/img/weather/08[9565].png');
-          break;
+          src = require('../assets/img/weather/08[9565].png')
+          break
         case '多云':
           if (time < 19 && time >= 6) {
-            src = require('../assets/img/weather/01[0].png');
+            src = require('../assets/img/weather/01[0].png')
           } else {
-            src = require('../assets/img/weather/01[1322].png');
+            src = require('../assets/img/weather/01[1322].png')
           }
-          break;
+          break
         case '阵雨':
           if (time < 19 && time >= 6) {
-            src = require('../assets/img/weather/03.png');
-            break;
+            src = require('../assets/img/weather/03.png')
+            break
           } else {
-            src = require('../assets/img/weather/03[900].png');
-            break;
+            src = require('../assets/img/weather/03[900].png')
+            break
           }
         case '晴':
           if (time < 19 && time >= 6) {
-            src = require('../assets/img/weather/00.png');
-            break;
+            src = require('../assets/img/weather/00.png')
+            break
           } else {
-            src = require('../assets/img/weather/00[227].png');
-            break;
+            src = require('../assets/img/weather/00[227].png')
+            break
           }
       }
-      return src;
+      return src
     },
     // 计算学习时间
     accumTime() {
-      const _this = this;
-      const time = new Date(_this.time);
+      const _this = this
+      const time = new Date(_this.time)
       if (this.studyMsg.flag === 1) {
-        _this.studyMsg.flag = 0;
-        _this.studyMsg.lebal = '停止学习';
-        const li = `${time.getHours()}:${time.getMinutes()}:${time.getSeconds()} 开始学习`;
-        _this.studyMsg.list.push(li);
+        _this.studyMsg.flag = 0
+        _this.studyMsg.lebal = '停止学习'
+        const li = `${time.getHours()}:${time.getMinutes()}:${time.getSeconds()} 开始学习`
+        _this.studyMsg.list.push(li)
         this.timer = setInterval(function() {
           // 想得太复杂了,直接一个变量++就行
           // const nowTime = +new Date()
@@ -232,36 +225,36 @@ export default {
           // _this.studyMsg.hh += Math.floor(dirTime / 3600)
           // _this.studyMsg.mm += Math.floor((dirTime / 60) % 60)
           // _this.studyMsg.ss += Math.floor(dirTime % 60)
-          _this.studyMsg.totalSecond++;
-        }, 1000);
+          _this.studyMsg.totalSecond++
+        }, 1000)
       } else {
-        clearInterval(this.timer);
-        _this.studyMsg.flag = 1;
-        _this.studyMsg.lebal = '开始学习';
-        const li = `${time.getHours()}:${time.getMinutes()}:${time.getSeconds()} 结束学习`;
-        _this.studyMsg.list.push(li);
+        clearInterval(this.timer)
+        _this.studyMsg.flag = 1
+        _this.studyMsg.lebal = '开始学习'
+        const li = `${time.getHours()}:${time.getMinutes()}:${time.getSeconds()} 结束学习`
+        _this.studyMsg.list.push(li)
       }
     },
     // 关闭计时器
     closeClock(e) {
-      this.isClockVisible = 'none';
+      this.isClockVisible = 'none'
       // 同时显示计时器图标
-      this.isVisible = 'inline-block';
+      this.isVisible = 'inline-block'
     },
     // 打开计时器
     showClock() {
-      this.isClockVisible = 'flex';
-      this.isVisible = 'none';
+      this.isClockVisible = 'flex'
+      this.isVisible = 'none'
     },
     // 跳转至腾讯天气首页
     gotoWeatherIndex() {
-      window.open('https://tianqi.qq.com/index.htm');
+      window.open('https://tianqi.qq.com/index.htm')
     }
   }
-};
+}
 // 选择类
-var weatherList = document.querySelector('.weatherList');
-console.log(weatherList);
+// var weatherList = document.querySelector('.weatherList');
+// console.log(weatherList);
 </script>
 
 <style lang="less" scoped>

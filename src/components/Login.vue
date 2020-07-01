@@ -26,19 +26,19 @@ export default {
         name: 'luo',
         password: '123456'
       }
-    };
+    }
   },
   methods: {
     LoginUser() {
       if (this.loginForm.name === 'luo' && this.loginForm.password === '123456') {
-        window.sessionStorage.setItem('token', 'kjhxcuiohvnjaklkkxupzvckjahsldhfzxiuhjkwbnmebuigzkjxdbfjbi');
-        this.$router.push('/home');
+        window.sessionStorage.setItem('token', 'kjhxcuiohvnjaklkkxupzvckjahsldhfzxiuhjkwbnmebuigzkjxdbfjbi')
+        this.$router.push('/home')
       } else {
-        this.$message.error('用户名或密码错误请重新输入');
+        this.$message.error('用户名或密码错误请重新输入')
       }
     }
   }
-};
+}
 </script>
 
 <style lang="less" scoped>
