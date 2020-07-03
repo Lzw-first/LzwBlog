@@ -1,178 +1,287 @@
 <template>
-  <div class="ganmeBox">
+  <div>
     <header>
       <h2>2048</h2>
-      <el-button type="info" size="small" @click="newGame">New Game</el-button>
+      <el-button type="info" size="small" @click="init()">重新开始</el-button>
       <p>
         score:
-        <span class="scroe">0</span>
+        <span>{{score}}</span>
       </p>
     </header>
-    <div class="grid_container">
-      <div
-        v-for="(item, k) in gridCellList"
-        :key="k"
-        class="grid_cell"
-        :id="'grid_cell_'+item.i+ '_' +item.j"
-        :style="{top: getPosTop(item.i, item.j), left: getPosLeft(item.i, item.j)}"
-      ></div>
-      <!-- 先不加这一块的css width: getLength(item.num), height: getLength(item.num) -->
-      <div
-        class="number_cell"
-        v-for="item in numberCellList"
-        :key="`${item.i},${item.j}`"
-        :id="'number_cell_'+item.i+ '_' +item.j"
-        :style="{top: numGetPosTop(item.i, item.j, item.num), left: numGetPosLeft(item.i, item.j, item.num), background: getNumberCellBgc(item.num),  color: getNumberColor(item.num)}"
-      >{{item.num === 0 ? '' : item.num}}</div>
+    <div class="allContainer">
+      <div class="gbCell">
+        <span v-for="item in 16" :key="item"></span>
+      </div>
+      <div class="numCell">
+        <div
+          v-for="item in rocks.filter(e => e)"
+          :key="item.id"
+          :id="`numCell${item.id}`"
+          :style="{color: item.num > 4 ? '#fff' : '#776e65', backgroundColor: item.bgc, transform: `translate(${cssTransition(item)})`, zIndex: item.num}"
+        >{{item.num}}</div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+/**
+ * 根据数字块的属性值排序
+ */
+// function pointSort(prototype) {
+//   return (firstRock, secondRock) => {
+//     const firstValue = firstRock[prototype]
+//     const secondValue = firstRock[prototype]
+//     return firstValue > secondValue ? 1 : -1
+//   }
+// }
+const pointSort = prototype => (firstRock, secondRock) => {
+  const first = firstRock[prototype]
+  const second = secondRock[prototype]
+  return first > second ? 1 : -1
+}
+/**
+ * 设置一个延迟函数
+ */
+const dely = ms => new Promise(resolve => setTimeout(resolve, ms))
 export default {
   data() {
     return {
-      gridCellList: [],
-      // 装数字的框
-      numberCellList: [],
-      // 记录是否已经叠加了一次
-      hasConflicted: [],
-      // 分数
-      score: 0
+      score: 0,
+      rocks: [],
+      color: {
+        2: '#eee4da',
+        4: '#ede0c8',
+        8: '#f2b179',
+        16: '#f59563',
+        32: '#f67c5f',
+        64: '#f65e3b',
+        128: '#edcf72',
+        256: '#edcc61',
+        512: '#0444BF',
+        1024: '#A79674',
+        2048: '#282726',
+        4096: '#280b21',
+        8192: '#281d04'
+      }
     }
   },
-  created() {
-    this.init()
-  },
+  /**
+   * 挂在完 dom元素 后执行
+   */
   mounted() {
-    // this.init()
+    this.init()
+    document.addEventListener('keydown', e => {
+      switch (e.key.toLocaleUpperCase()) {
+        case 'ARROWRIGHT':
+        case 'D':
+          e.preventDefault()
+          this.turn('right')
+          break
+        case 'ARROWLEFT':
+        case 'A':
+          e.preventDefault()
+          this.turn('left')
+          break
+        case 'ARROWDOWN':
+        case 'S':
+          e.preventDefault()
+          this.turn('down')
+          break
+        case 'ARROWUP':
+        case 'W':
+          e.preventDefault()
+          this.turn('up')
+          break
+      }
+    })
   },
   methods: {
-    // 提供基础的算法支持
-    getPosTop(i, j) {
-      return j * 120 + 20 + 'px'
+    getRock({ x, y }) {
+      return this.rocks.filter(e => e).find(e => e.x === x && e.y === y)
     },
-    getPosLeft(i, j) {
-      return i * 120 + 20 + 'px'
+    /**
+     * 根据数字块 x, y 属性确定移动值
+     */
+    cssTransition(item) {
+      return `${item.x * 120 + 20}px, ${item.y * 120 + 20}px`
     },
-    numGetPosTop(i, j, num) {
-      if (num === 0) {
-        return j * 120 + 70 + 'px'
-      } else {
-        return j * 120 + 20 + 'px'
-      }
+    /**
+     * 根据数字块的 id 获取数字块在数组中的位置
+     */
+    getIndex(id) {
+      return this.rocks.findIndex(rock => rock && rock.id === id)
     },
-    numGetPosLeft(i, j, num) {
-      if (num === 0) {
-        return i * 120 + 70 + 'px'
-      } else {
-        return i * 120 + 20 + 'px'
-      }
-    },
-    getNumberCellBgc(num) {
-      switch (num) {
-        case 2:
-          return '#eee4da'
-        case 4:
-          return '#ede078'
-        case 8:
-          return '#f2b179'
-        case 16:
-          return '#f59563'
-        case 32:
-          return '#f67c5f'
-        case 64:
-          return '#f65e3b'
-        case 128:
-          return '#edcf72'
-        case 256:
-          return '#edcc61'
-        case 512:
-          return '#9c0'
-        case 1024:
-          return '#33b5e5'
-        case 2048:
-          return '#09c'
-        case 4096:
-          return '#a6c'
-        case 8192:
-          return '#93c'
-      }
-      return 'black'
-    },
-    getLength(num) {
-      if (num === 0) {
-        return 0
-      }
-      return 100 + 'px'
-    },
-    getNumberColor(num) {
-      if (num <= 4) {
-        return '#776e65'
-      }
-      return 'white'
-    },
-    // 初始化
     init() {
-      this.gridCellList = []
-      this.numberCellList = []
-      for (let i = 0; i < 4; i++) {
-        for (let j = 0; j < 4; j++) {
-          // 初始化背景格子
-          var obj = { i, j }
-          this.gridCellList.push(obj)
-          // console.log(obj)
-
-          // 初始化数字
-          var obj2 = { i, j, num: 0, hasConflicted: false }
-          this.numberCellList.push(obj2)
-        }
-      }
+      this.rocks = []
       this.score = 0
-      // console.log(this.numberCellList)
-      this.generateOneNumber()
-      this.generateOneNumber()
+      this.add()
+      this.add()
     },
-
-    newGame() {
-      this.init()
-    },
-    // 判断是否有空位
-    nospace() {
-      return this.numberCellList.every(item => item.num !== 0)
-    },
-    // 随机位置生成一个随机数
-    generateOneNumber() {
-      // 判断是否有空位
-      if (!this.nospace()) {
-        // 随机一个位置
-        var index = Math.floor(Math.random() * 16)
-        //  为了防止循环多次都得不到想要的空位,标记循环的次数
-        var times = 0
-        while (times < 50) {
-          if (this.numberCellList[index].num === 0) break
-          index = Math.ceil(Math.random() * 16)
-          times++
+    add() {
+      if (this.noSpace()) {
+        return false
+      } else {
+        var randX = ~~(Math.random() * 4)
+        var randY = ~~(Math.random() * 4)
+        var time = 0
+        while (time < 50) {
+          if (!this.getRock({ x: randX, y: randY })) {
+            break
+          } else {
+            randX = ~~(Math.random() * 4)
+            randY = ~~(Math.random() * 4)
+            time++
+          }
         }
-        if (times === 50) {
-          for (var i = 0; i < 16; i++) {
-            if (this.numberCellList[i].num === 0) {
-              index = i
+        if (time === 50) {
+          for (let i = 0; i < 4; i++) {
+            for (let j = 0; j < 4; j++) {
+              if (!this.getRock({ x: randX, y: randY })) {
+                randX = i
+                randY = j
+                break
+              }
             }
           }
         }
-        var numberCell = this.numberCellList[index]
-        numberCell.num = Math.random() > 0.5 ? 4 : 2
-        // console.log(index, this.numberCellList[index])
-        this.showNumberCell(numberCell)
+        const num = Math.random() > 0.8 ? 4 : 2
+        const rock = {
+          x: randX,
+          y: randY,
+          num: num,
+          bgc: this.color[num],
+          id: this.rocks.length + 1
+        }
+        this.rocks.push(rock)
+        console.log(this.rocks)
       }
     },
-    // 提供  显示的动画
-    showNumberCell(cell) {
-      console.log(cell)
-      // 没有这个animate 方法
-      const numberCell = document.getElementById(`#number_cell_${cell.i}_${cell.j}`)
-      numberCell.animate([{ width: '100px', height: '100px' }], { duration: 200 })
+    noSpace() {
+      return this.rocks.filter(e => e).length > 15
+    },
+    isGameOver() {
+      if (this.noSpace()) {
+        const resultX = this.rocks
+          .filter(e => e && e.x < 3)
+          .find(e => {
+            const nextX = this.getRock({ x: e.x + 1, y: e.y })
+            return e.num === nextX.num
+          })
+        const resultY = this.rocks
+          .filter(e => e && e.y < 3)
+          .find(e => {
+            const nextY = this.getRock({ x: e.x, y: e.y + 1 })
+            return e.num === nextY.num
+          })
+        return (resultX || resultY) === undefined
+      }
+      return false
+    },
+    /**
+     * 判断是否胜利
+     */
+    isSuccess() {
+      // 胜利的条件是有一个数字达到8192
+      const result = this.rocks.filter(e => e).find(e => e.num === 8192)
+      return result !== undefined
+    },
+    /**
+     * 控制移动的函数
+     */
+    turn(direct) {
+      // 给每个数字块添加 canCalc 属性， 因为每个元素都是对象所以可以添加
+      this.rocks.forEach(e => e && (e.canCalc = true))
+
+      Promise.all(
+        this.handleDirect(direct)
+          .handleArr(this.rocks)
+          .map(async e => {
+            var flag = this.calcAxis({ e, direct })
+            return flag
+          })
+      ).then(async res => {
+        if (res.indexOf(true) > -1) {
+          if (this.isSuccess()) {
+            this.$message.success('你真牛，这都能通关')
+          } else {
+            await dely(200)
+            this.add()
+          }
+        } else {
+          if (this.isGameOver()) {
+            this.$message.error('游戏结束，请重新开始')
+          } else if (this.isSuccess()) {
+            this.$message.success('你真牛，这都能通关')
+          }
+        }
+        setTimeout(() => {}, 10)
+      })
+    },
+    handleDirect(direct) {
+      if (direct === 'right') {
+        return {
+          handleArr: arr =>
+            arr
+              .filter(e => e && e.x !== 3)
+              .sort(pointSort('x'))
+              .reverse(),
+          /**
+           * 判断当前元素是否为最右边一列
+           * @return boolean 如果为最边一列返回 false
+           */
+          handleCondition: e => e.x < 3,
+          next: e => this.getRock({ x: e.x + 1, y: e.y }),
+          handleMove: e => e.x++
+        }
+      } else if (direct === 'left') {
+        return {
+          handleArr: arr => arr.filter(e => e && e.x !== 0).sort(pointSort('x')),
+          handleCondition: e => e.x > 0,
+          next: e => this.getRock({ x: e.x - 1, y: e.y }),
+          handleMove: e => e.x--
+        }
+      } else if (direct === 'down') {
+        return {
+          handleArr: arr =>
+            arr
+              .filter(e => e && e.y !== 3)
+              .sort(pointSort('y'))
+              .reverse(),
+          handleCondition: e => e.y < 3,
+          next: e => this.getRock({ x: e.x, y: e.y + 1 }),
+          handleMove: e => e.y++
+        }
+      } else if (direct === 'up') {
+        return {
+          handleArr: arr => arr.filter(e => e && e.y !== 0).sort(pointSort('y')),
+          handleCondition: e => e.y > 0,
+          next: e => this.getRock({ x: e.x, y: e.y - 1 }),
+          handleMove: e => e.y--
+        }
+      }
+    },
+    calcAxis({ e, direct }) {
+      return new Promise((resolve, reject) => {
+        const nextRock = this.handleDirect(direct).next(e)
+        if (nextRock && nextRock.num !== e.num) {
+          resolve(false)
+        } else if (nextRock && nextRock.canCalc && nextRock.num === e.num) {
+          this.handleDirect(direct).handleMove(e)
+          nextRock.num *= 2
+          nextRock.canCalc = false
+          nextRock.bgc = this.color[nextRock.num]
+          this.score += nextRock.num
+          this.rocks.splice(this.getIndex(e.id), 1, null)
+          resolve(true)
+        } else if (nextRock === undefined) {
+          if (this.handleDirect(direct).handleCondition(e)) {
+            this.handleDirect(direct).handleMove(e)
+            this.calcAxis({ e, direct })
+          }
+          resolve(true)
+        }
+      })
     }
   }
 }
@@ -183,28 +292,50 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
+  h2 {
+    font-size: 30px;
+    margin-bottom: 15px;
+  }
+  p {
+    margin-top: 15px;
+    font-size: 15px;
+  }
 }
-.grid_container {
+.allContainer {
+  position: relative;
   width: 500px;
   height: 500px;
-  position: relative;
-  margin: 20px auto;
   background-color: #bbada0;
+  margin: 15px auto;
   border-radius: 10px;
-  .grid_cell {
-    width: 100px;
-    height: 100px;
-    background-color: #ccc0b3;
-    border-radius: 8px;
-    position: absolute;
+  .gbCell {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    > span {
+      width: 100px;
+      height: 100px;
+      margin: 10px;
+      background-color: #ccc0b3;
+      border-radius: 10px;
+    }
   }
-  .number_cell {
+  .numCell {
     position: absolute;
-    font-size: 60px;
-    line-height: 100px;
-    text-align: center;
-    font-weight: bold;
-    border-radius: 8px;
+    top: 0;
+    left: 0;
+    > div {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      font-size: 50px;
+      font-weight: bold;
+      line-height: 100px;
+      text-align: center;
+      border-radius: 10px;
+      transition-property: transform;
+      transition: 100ms ease-in-out;
+    }
   }
 }
 </style>

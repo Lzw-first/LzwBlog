@@ -18,3 +18,4 @@ Vue.use(Row)
 Vue.use(Col)
 Vue.prototype.$message = Message
 Vue.prototype.$confirm = MessageBox.confirm
+Vue.prototype.$alert = MessageBox.alert

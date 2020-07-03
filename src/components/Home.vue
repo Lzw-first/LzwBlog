@@ -155,6 +155,9 @@ export default {
         }
       })
     },
+    updataWeather() {
+      setInterval(this.getWeather, 18000000)
+    },
     getTime() {
       this.time = +new Date()
       setInterval(() => {

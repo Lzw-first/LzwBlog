@@ -10,8 +10,8 @@ const Diary = () => import(/* webpackChunkName: "TodoList" */ '../components/dia
 const New = () => import(/* webpackChunkName: "news" */ '../components/news/New.vue')
 
 const gameHome = () => import(/* webpackChunkName: "games" */ '../components/hobbies/gameWelcome.vue')
-const game2048 = () => import(/* webpackChunkName: "games" */ '../components/hobbies/game2048.vue')
-const game20482 = () => import(/* webpackChunkName: "games" */ '../components/hobbies/game2048_2.vue')
+// const game2048 = () => import(/* webpackChunkName: "games" */ '../components/hobbies/game2048.vue')
+const game20482 = () => import(/* webpackChunkName: "games" */ '../components/hobbies/game2048my.vue')
 const gameTanchishe = () => import(/* webpackChunkName: "games" */ '../components/hobbies/gameTanchishe.vue')
 const gameChidouzi = () => import(/* webpackChunkName: "games" */ '../components/hobbies/gameChidouzi.vue')
 
@@ -37,7 +37,7 @@ const routes = [
         path: '/game',
         component: gameHome,
         children: [
-          { path: '/game/game2048', component: game2048 },
+          // { path: '/game/game2048', component: game2048 },
           { path: '/game/gametanchishe', component: gameTanchishe },
           { path: '/game/gameChidouzi', component: gameChidouzi },
           { path: '/game/game20482', component: game20482 }
