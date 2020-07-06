@@ -40,56 +40,16 @@ export default {
     this.createSnack()
   },
   mounted() {
-    this.$refs.gird.forEach(item => {
-      item.setAttribute('class', 'commondGird')
-    })
     this.mountSnack()
     this.createdEgg()
-    document.addEventListener('keyup', e => {
-      if (e.keyCode === 32) {
-        e.preventDefault()
-        if (this.pasue) {
-          console.log('开始游戏')
-
-          this.startGame()
-        } else {
-          console.log('停止游戏')
-
-          this.pauseGame()
-        }
-      } else {
-        switch (e.keyCode) {
-          case 37:
-            if (this.dir !== 'right') {
-              this.dir = 'left'
-            }
-            break
-          case 38:
-            if (this.dir !== 'down') {
-              this.dir = 'up'
-            }
-            break
-          case 39:
-            if (this.dir !== 'left') {
-              this.dir = 'right'
-            }
-            break
-          case 40:
-            if (this.dir !== 'up') {
-              this.dir = 'down'
-            }
-            break
-        }
-      }
-    })
+    // 这会出现重复挂载的问题 在结束游戏的时候移除该事件就可解决
+    document.addEventListener('keyup', this.controlKey)
   },
   methods: {
     init() {
       location.reload()
     },
     createSnack() {
-      console.log('创建了新的蛇')
-
       var startX = ~~(Math.random() * 10 + 4)
       var startY = ~~(Math.random() * 16 + 2)
       for (var i = 0; i < 4; i++) {
@@ -98,7 +58,6 @@ export default {
           y: startY
         })
       }
-      console.log(this.snack)
     },
     createdEgg() {
       var randX = ~~(Math.random() * 20)
@@ -143,7 +102,42 @@ export default {
       this.pasue = true
       clearInterval(this.moveTimer)
       this.moveTimer = null
-      console.log('停止了游戏')
+    },
+    /**
+     * 控制方向和操作的按钮
+     */
+    controlKey(e) {
+      if (e.keyCode === 32) {
+        e.preventDefault()
+        if (this.pasue) {
+          this.startGame()
+        } else {
+          this.pauseGame()
+        }
+      } else {
+        switch (e.keyCode) {
+          case 37:
+            if (this.dir !== 'right') {
+              this.dir = 'left'
+            }
+            break
+          case 38:
+            if (this.dir !== 'down') {
+              this.dir = 'up'
+            }
+            break
+          case 39:
+            if (this.dir !== 'left') {
+              this.dir = 'right'
+            }
+            break
+          case 40:
+            if (this.dir !== 'up') {
+              this.dir = 'down'
+            }
+            break
+        }
+      }
     },
     /**
      * 设置一个控制蛇移动的函数
@@ -222,8 +216,6 @@ export default {
         }
       }
       if (this.snack[0].x > 19 || this.snack[0].y > 19 || this.snack[0].x < 0 || this.snack[0].y < 0) {
-        console.log(this.snack)
-
         flag = true
         this.failGame()
       }
@@ -244,6 +236,8 @@ export default {
           location.reload()
         })
         .catch(() => {
+          // 解决推出游戏后重新进入的bug，将keyup事件移除后重新挂载
+          document.removeEventListener('keyup', this.controlKey)
           this.$router.push('/game')
         })
     }

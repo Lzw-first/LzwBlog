@@ -28,13 +28,7 @@
 /**
  * 根据数字块的属性值排序
  */
-// function pointSort(prototype) {
-//   return (firstRock, secondRock) => {
-//     const firstValue = firstRock[prototype]
-//     const secondValue = firstRock[prototype]
-//     return firstValue > secondValue ? 1 : -1
-//   }
-// }
+
 const pointSort = prototype => (firstRock, secondRock) => {
   const first = firstRock[prototype]
   const second = secondRock[prototype]
@@ -154,7 +148,6 @@ export default {
           id: this.rocks.length + 1
         }
         this.rocks.push(rock)
-        console.log(this.rocks)
       }
     },
     noSpace() {
